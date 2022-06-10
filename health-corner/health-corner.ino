@@ -30,7 +30,8 @@ void setup() {
 void loop() {
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-
+    
+    Serial.println("Pulse Oximeter:");
     Serial.print(pox.getHeartRate());
     Serial.print(" BPM | SpO2: ");
     Serial.print(pox.getSpO2());
@@ -40,7 +41,7 @@ void loop() {
     Serial.print("°C | ");
     Serial.print(mlx.readObjectTempF());
     Serial.println("°F");
-    Serial.println("\n");
+    Serial.println();
 
     tsLastReport = millis();
   }
@@ -70,7 +71,7 @@ void setupWebServer() {
 void handleRoot() {
   Serial.println("[WebServer] Request: /");
   pox.update();
-  
+
   double bpm = pox.getHeartRate();
   double spo2 = pox.getSpO2();
   double bodyTempC = mlx.readObjectTempC();
