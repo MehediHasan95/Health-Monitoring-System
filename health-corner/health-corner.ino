@@ -24,30 +24,27 @@ void setup() {
   pox.begin();
   setupSensors();
 }
+
+int sensorData(double value) {
+  int i;
+  int sensorValue[20];
+  double sum = 0;
+  double avg = 0;
+  for (i = 0; i <= 20; i++) {
+    sensorValue[i] = value;
+  }
+
+  for (i = 0; i <= 20; i++) {
+    sum = sum + sensorValue[i];
+  }
+  avg = sum / 20;
+  return avg;
+}
+
+
 void loop() {
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-
-    int i;
-    int sensorValue[20];
-    int sum = 0;
-    int avg = 0;
-    int value = pox.getHeartRate();
-
-    for (i = 0; i <= 20; i++) {
-      sensorValue[i] = value;
-    }
-
-    for (i = 0; i <= 20; i++) {
-      sum = sum + sensorValue[i];
-    }
-
-    Serial.print("Total: ");
-    Serial.println(sum);
-    avg = sum / 20;
-    Serial.print("Average: ");
-    Serial.println(avg);
-
 
     Serial.println("Pulse Oximeter:");
     Serial.print(pox.getHeartRate());
@@ -95,6 +92,11 @@ void handleRoot() {
   double bodyTempC = mlx.readObjectTempC();
   double bodyTempF = mlx.readObjectTempF();
 
+  double avgBpm = sensorData(bpm);
+  double avgSpo2 = sensorData(spo2);
+  double avgBodyTempC = sensorData(bodyTempC);
+  double avgBodyTempF = sensorData(bodyTempF);
+
   String response = "";
   response += "[";
   response += "{";
@@ -109,6 +111,18 @@ void handleRoot() {
   response += ",";
   response += "\"spo2\":";
   response += spo2;
+  response += ",";
+  response += "\"avgBpm\":";
+  response += avgBpm;
+  response += ",";
+  response += "\"avgSpo2\":";
+  response += avgSpo2;
+  response += ",";
+  response += "\"avgBodyTempC\":";
+  response += avgBodyTempC;
+  response += ",";
+  response += "\"avgBodyTempC\":";
+  response += avgBodyTempF;
   response += "}";
   response += "]";
   webServer.send(200, "application/json", response);
