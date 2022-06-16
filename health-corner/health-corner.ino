@@ -5,7 +5,7 @@
 #include <ESP8266WebServer.h>
 
 #define REPORTING_PERIOD_MS 1000
-#define WIFI_SSID "Hasan"
+#define WIFI_SSID "HASAN"
 #define WIFI_PASS "76278704H"
 #define WEB_SERVER_PORT 80
 ESP8266WebServer webServer(WEB_SERVER_PORT);
@@ -25,46 +25,46 @@ void setup() {
   setupSensors();
 }
 
-int sensorData(double value) {
+double sensorValue(double value) {
   int i;
-  int sensorValue[20];
-  double sum = 0;
-  double avg = 0;
-  for (i = 0; i <= 20; i++) {
-    sensorValue[i] = value;
+  double arr[25];
+  double sum;
+  double avgrage;
+  for (i = 0; i <= 25; i++) {
+    arr[i] = value;
   }
-
-  for (i = 0; i <= 20; i++) {
-    sum = sum + sensorValue[i];
+  for (i = 0; i <= 25; i++) {
+    sum = sum + arr[i];
   }
-  avg = sum / 20;
-  return avg;
+  avgrage = sum / 25;
+  return avgrage;
 }
-
 
 void loop() {
   pox.update();
+  double bpm = pox.getHeartRate();
+  double spo2 = pox.getSpO2();
+  double bodyTempC = mlx.readObjectTempC();
+  double bodyTempF = mlx.readObjectTempF();
+
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-
-    Serial.println("Pulse Oximeter:");
-    Serial.print(pox.getHeartRate());
-    Serial.print(" BPM | SpO2: ");
-    Serial.print(pox.getSpO2());
-    Serial.println("%");
-    Serial.println("Thermometer:");
-    Serial.print(mlx.readObjectTempC());
-    Serial.print("°C | ");
-    Serial.print(mlx.readObjectTempF());
-    Serial.println("°F");
     Serial.println();
-
+    Serial.print(bpm);
+    Serial.print(" BPM | SpO2: ");
+    Serial.print(spo2);
+    Serial.println("%");
+    Serial.print(bodyTempC);
+    Serial.print("°C | ");
+    Serial.print(bodyTempF);
+    Serial.println("°F");
     tsLastReport = millis();
   }
   webServer.handleClient();
 }
+
 void setupWiFi() {
-  Serial.println("[WiFi] Setup");
-  Serial.print("[WiFi] Connecting to: ");
+  Serial.println("WIFI SETUP");
+  Serial.print("CONNECTED WITH: ");
   Serial.println(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
@@ -72,19 +72,21 @@ void setupWiFi() {
     Serial.print(".");
   }
   Serial.println();
-  Serial.println("[WiFi] Connected!");
-  Serial.print("[WiFi] IP: ");
+  Serial.println("CONNECTED SUCCESSFULLY");
+  Serial.print("YOUR ID ADDRESS: ");
   Serial.println(WiFi.localIP());
 }
+
 void setupWebServer() {
-  Serial.println("[WebServer] Setup");
+  Serial.println("SETUP");
   webServer.on("/", handleRoot);
-  Serial.println("[WebServer] Starting..");
+  Serial.println("STARTING...");
   webServer.begin();
-  Serial.println("[WebServer] Running!");
+  Serial.println("RUNNING");
 }
+
 void handleRoot() {
-  Serial.println("[WebServer] Request: /");
+  Serial.println("REQUEST SUCCESSFUL");
   pox.update();
 
   double bpm = pox.getHeartRate();
@@ -92,41 +94,48 @@ void handleRoot() {
   double bodyTempC = mlx.readObjectTempC();
   double bodyTempF = mlx.readObjectTempF();
 
-  double avgBpm = sensorData(bpm);
-  double avgSpo2 = sensorData(spo2);
-  double avgBodyTempC = sensorData(bodyTempC);
-  double avgBodyTempF = sensorData(bodyTempF);
+  double avgBpm = sensorValue(bpm);
+  double avgSpo2 = sensorValue(spo2);
+  double avgBodyTempC = sensorValue(bodyTempC);
+  double avgBodyTempF = sensorValue(bodyTempF);
 
   String response = "";
   response += "[";
   response += "{";
-  response += "\"body_temp_c\":";
+  response += "\"bodyTempC\": ";
   response += bodyTempC;
   response += ",";
-  response += "\"body_temp_f\":";
+  response += "\"bodyTempF\": ";
   response += bodyTempF;
   response += ",";
-  response += "\"bpm\":";
+  response += "\"bpm\": ";
   response += bpm;
   response += ",";
-  response += "\"spo2\":";
+  response += "\"spo2\": ";
   response += spo2;
-  response += ",";
-  response += "\"avgBpm\":";
-  response += avgBpm;
-  response += ",";
-  response += "\"avgSpo2\":";
-  response += avgSpo2;
-  response += ",";
-  response += "\"avgBodyTempC\":";
-  response += avgBodyTempC;
-  response += ",";
-  response += "\"avgBodyTempC\":";
-  response += avgBodyTempF;
+
+  if (avgBpm >= 60.00 && avgSpo2 >= 90.00) {
+    response += ",";
+    response += "\"avgBpm\": ";
+    response += avgBpm;
+    response += ",";
+    response += "\"avgSpo2\": ";
+    response += avgSpo2;
+    response += ",";
+  }
+  if (avgBodyTempC >= 37.2 && avgBodyTempF >= 98.6) {
+    response += "\"avgBodyTempC\": ";
+    response += avgBodyTempC;
+    response += ",";
+    response += "\"avgBodyTempF\": ";
+    response += avgBodyTempF;
+  }
+
   response += "}";
   response += "]";
   webServer.send(200, "application/json", response);
 }
+
 void setupSensors() {
   Serial.print("Initializing Pulse Oximeter..");
   if (!pox.begin()) {
