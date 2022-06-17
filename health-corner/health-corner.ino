@@ -113,24 +113,18 @@ void handleRoot() {
   response += ",";
   response += "\"spo2\": ";
   response += spo2;
-
-  if (avgBpm >= 60.00 && avgSpo2 >= 90.00) {
-    response += ",";
-    response += "\"avgBpm\": ";
-    response += avgBpm;
-    response += ",";
-    response += "\"avgSpo2\": ";
-    response += avgSpo2;
-    response += ",";
-  }
-  if (avgBodyTempC >= 37.2 && avgBodyTempF >= 98.6) {
-    response += "\"avgBodyTempC\": ";
-    response += avgBodyTempC;
-    response += ",";
-    response += "\"avgBodyTempF\": ";
-    response += avgBodyTempF;
-  }
-
+  response += ",";
+  response += "\"avgBpm\": ";
+  response += avgBpm;
+  response += ",";
+  response += "\"avgSpo2\": ";
+  response += avgSpo2;
+  response += ",";
+  response += "\"avgBodyTempC\": ";
+  response += avgBodyTempC;
+  response += ",";
+  response += "\"avgBodyTempF\": ";
+  response += avgBodyTempF;
   response += "}";
   response += "]";
   webServer.send(200, "application/json", response);
