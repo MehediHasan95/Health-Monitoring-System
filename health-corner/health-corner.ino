@@ -11,7 +11,6 @@
 #define WIFI_SSID "HASAN"
 #define WIFI_PASS "76278704H"
 #define WEB_SERVER_PORT 80
-#define BUZZER D7
 
 ESP8266WebServer webServer(WEB_SERVER_PORT);
 uint8_t max30100_address = 0x57;
@@ -41,7 +40,6 @@ void setup()
   Wire.begin();
   mlx.begin();
   pox.begin();
-  pinMode(BUZZER, OUTPUT);
   setupSensors();
 }
 
@@ -54,7 +52,7 @@ void loop()
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-
+    
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
     avgBodyTempC = sensorValue(bodyTempC);
@@ -63,7 +61,6 @@ void loop()
     displayData();
     tsLastReport = millis();
   }
-
   webServer.handleClient();
 }
 
@@ -82,7 +79,6 @@ double sensorValue(double value)
   {
     sum = sum + arr[i];
   }
-
   avgrage = sum / 25;
   return avgrage;
 }
