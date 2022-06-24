@@ -5,6 +5,7 @@
 #include <ESP8266WebServer.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ESP8266mDNS.h>
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
@@ -46,13 +47,14 @@ void setup()
 void loop()
 {
   pox.update();
+  MDNS.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS)
   {
     bpm = pox.getHeartRate();
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-    
+
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
     avgBodyTempC = sensorValue(bodyTempC);
@@ -135,6 +137,12 @@ void setupWiFi()
   Serial.print("YOUR ID ADDRESS: ");
   myIpAddress = WiFi.localIP();
   Serial.println(myIpAddress);
+  if (WiFi.status() == WL_CONNECTED) 
+  {
+    if (MDNS.begin("health-corner")) {  
+      Serial.println("MDNS STARTED");
+    }
+  }
 }
 
 void setupWebServer()
@@ -143,6 +151,7 @@ void setupWebServer()
   webServer.on("/", handleRoot);
   Serial.println("STARTING...");
   webServer.begin();
+  MDNS.addService("http", "tcp", 80);
   Serial.println("RUNNING");
 }
 
