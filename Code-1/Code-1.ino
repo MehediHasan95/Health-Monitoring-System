@@ -25,9 +25,10 @@ uint8_t mlx90614_address = 0x5A;
 uint32_t tsLastReport = 0;
 uint32_t last_beat = 0;
 int readIndex = 0;
-float average_beat;
-int average_SpO2;
-float average_tempC;
+float myBpm, avgBpm;
+int mySpo2, avgSpO2;
+float myTempC, avgTempC;
+float myTempF, avgTempF;
 bool calculation_complete = false;
 bool calculating = false;
 bool initialized = false;
@@ -63,17 +64,28 @@ void display_calculating(int j) {
 }
 
 void display_values() {
-  displayData();
+  Serial.print("Heart-rate: ");
+  Serial.print(avgBpm);
+  Serial.print(" BPM || SpO2: ");
+  Serial.print(avgSpO2);
+  Serial.print("% ");
+  Serial.print("Body-tempC: ");
+  Serial.print(avgTempC);
+  Serial.print(" Body-tempF: ");
+  Serial.print(avgTempF);
+  Serial.println();
   StoreDatabase();
 }
 
 void StoreDatabase() {
-  if (average_beat > 60 and average_SpO2 > 70 and average_tempC > 20)
-  {
-    Firebase.pushFloat("Health-Corner/bpm", average_beat);
-    Firebase.pushInt("Health-Corner/spo2", average_SpO2);
-    Firebase.pushFloat("Health-Corner/tempC", average_tempC);
+  if (avgBpm > 0) {
+    Firebase.pushFloat("Health-Corner/heart-rate", avgBpm);
+    Firebase.pushInt("Health-Corner/oxygen-level", avgSpO2);
+    Firebase.pushFloat("Health-Corner/body-tempC", avgTempC);
+    Firebase.pushFloat("Health-Corner/body-tempF", avgTempF);
   }
+  delay(1000);
+  ESP.restart();
 }
 
 void displayData()
@@ -82,27 +94,30 @@ void displayData()
   display.setTextSize(1);
   display.setTextColor(WHITE);
 
-
-
   display.setCursor(0, 10);
   display.println("BPM: ");
   display.setCursor(40, 10);
-  display.print(average_beat);
+  display.print(myBpm);
 
   display.setCursor(0, 20);
   display.println("SpO2:");
   display.setCursor(40, 20);
-  display.print(average_SpO2);
+  display.print(mySpo2);
 
   display.setCursor(0, 30);
   display.println("TempC:");
   display.setCursor(40, 30);
-  display.print(average_tempC);
+  display.print(myTempC);
+
+  display.setCursor(0, 40);
+  display.println("TempF:");
+  display.setCursor(40, 40);
+  display.print(myTempF);
   display.display();
 }
 
 
-void calculate_average(float beat, int SpO2, float tempC) {
+void calculate_average(float bpm, int spo2, float tempC, float tempF) {
   if (readIndex == numReadings) {
     calculation_complete = true;
     calculating = false;
@@ -111,10 +126,11 @@ void calculate_average(float beat, int SpO2, float tempC) {
     display_values();
   }
 
-  if (not calculation_complete and beat > 30 and beat < 220 and SpO2 > 50 and tempC > 20) {
-    average_beat = filterweight * (beat) + (1 - filterweight) * average_beat;
-    average_SpO2 = filterweight * (SpO2) + (1 - filterweight) * average_SpO2;
-    average_tempC = filterweight * (tempC) + (1 - filterweight) * average_tempC;
+  if (not calculation_complete and bpm > 30 and bpm < 220 and spo2 > 50 and tempC > 20 and tempF > 80) {
+    avgBpm = filterweight * (bpm) + (1 - filterweight) * avgBpm;
+    avgSpO2 = filterweight * (spo2) + (1 - filterweight) * avgSpO2;
+    avgTempC = filterweight * (tempC) + (1 - filterweight) * avgTempC;
+    avgTempF = filterweight * (tempF) + (1 - filterweight) * avgTempF;
     readIndex++;
     display_calculating(readIndex);
   }
@@ -148,17 +164,25 @@ void setup() {
 
 void loop() {
   pox.update();
+
+  myBpm = pox.getHeartRate();
+  mySpo2 = pox.getSpO2();
+  myTempC = mlx.readObjectTempC();
+  myTempF = mlx.readObjectTempF();
+
   if ((millis() - tsLastReport > REPORTING_PERIOD_MS) and
       (not calculation_complete)) {
-    calculate_average(pox.getHeartRate(), pox.getSpO2(), mlx.readObjectTempC());
+    calculate_average(myBpm, mySpo2, myTempC, myTempF);
+    displayData();
     tsLastReport = millis();
   }
 
   if ((millis() - last_beat > 5000)) {
     calculation_complete = false;
-    average_beat = 0;
-    average_SpO2 = 0;
-    average_tempC = 0;
+    avgBpm = 0;
+    avgSpO2 = 0;
+    avgTempC = 0;
+    avgTempF = 0;
     initial_display();
   }
 }

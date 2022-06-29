@@ -77,15 +77,16 @@ void loop()
 
 void firebasePushValue() {
 
-  String fireBpm = String(avgBpm);
-  String fireSpo2 = String(avgSpo2);
-  String fireTempC = String(bodyTempC);
 
   if (bpm >= 60 and bodyTempC > 30)
   {
-    Firebase.pushString("Health-Corner/bpm", fireBpm);
-    Firebase.pushString("Health-Corner/spo2", fireSpo2);
-    Firebase.pushString("Health-Corner/tempC", fireTempC);
+    delay(10);
+    Firebase.pushFloat("Health-Corner/bpm", avgBpm);
+    delay(10);
+    Firebase.pushInt("Health-Corner/spo2", avgSpo2);
+    delay(10);
+    Firebase.pushFloat("Health-Corner/tempC", bodyTempC);
+    delay(10);
   }
 }
 
