@@ -3,19 +3,14 @@
 #include <MAX30100_PulseOximeter.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <FirebaseArduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ESP8266mDNS.h>
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
-
-#define FIREBASE_HOST "my-project-2a99b-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "4kOA0npdTC5R6LreQUMjF6d4mF8dewQ55JJNLjTu"
 #define WIFI_SSID "HASAN"
 #define WIFI_PASS "76278704H"
-
 #define WEB_SERVER_PORT 80
 
 ESP8266WebServer webServer(WEB_SERVER_PORT);
@@ -32,17 +27,16 @@ double bodyTempC, avgBodyTempC;
 double bodyTempF, avgBodyTempF;
 IPAddress myIpAddress;
 
-
-
 void setup()
 {
   Serial.begin(9600);
-  setupWiFi();
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   {
     Serial.println(F("OLED Display Connection failed"));
     for (;;);
   }
+
+  setupWiFi();
   setupWebServer();
   Wire.begin();
   mlx.begin();
@@ -67,26 +61,9 @@ void loop()
     avgBodyTempF = sensorValue(bodyTempF);
 
     displayData();
-    firebasePushValue();
     tsLastReport = millis();
   }
-
-
   webServer.handleClient();
-}
-
-void firebasePushValue() {
-
-  String fireBpm = String(avgBpm);
-  String fireSpo2 = String(avgSpo2);
-  String fireTempC = String(bodyTempC);
-
-  if (bpm >= 60 and bodyTempC > 30)
-  {
-    Firebase.pushString("Health-Corner/bpm", fireBpm);
-    Firebase.pushString("Health-Corner/spo2", fireSpo2);
-    Firebase.pushString("Health-Corner/tempC", fireTempC);
-  }
 }
 
 // Calculate average value
@@ -159,11 +136,10 @@ void setupWiFi()
   Serial.println("CONNECTED SUCCESSFULLY");
   Serial.print("YOUR ID ADDRESS: ");
   myIpAddress = WiFi.localIP();
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Serial.println(myIpAddress);
-  if (WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED) 
   {
-    if (MDNS.begin("health-corner")) {
+    if (MDNS.begin("health-corner")) {  
       Serial.println("MDNS STARTED");
     }
   }
