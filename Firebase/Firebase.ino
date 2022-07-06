@@ -79,10 +79,10 @@ void display_values() {
 
 void StoreDatabase() {
   if (avgBpm > 0) {
-    Firebase.pushFloat("Health-Corner/heart-rate", avgBpm);
-    Firebase.pushInt("Health-Corner/oxygen-level", avgSpO2);
-    Firebase.pushFloat("Health-Corner/body-tempC", avgTempC);
-    Firebase.pushFloat("Health-Corner/body-tempF", avgTempF);
+    Firebase.push("Health-Corner/sensor", avgBpm);
+    Firebase.push("Health-Corner/sensor", avgSpO2);
+    Firebase.push("Health-Corner/sensor", avgTempC);
+    Firebase.push("Health-Corner/sensor", avgTempF);
   }
   delay(1000);
   ESP.restart();
