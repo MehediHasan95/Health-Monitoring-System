@@ -123,7 +123,7 @@ void displayData()
 void setupWiFi()
 {
   Serial.println("WIFI SETUP");
-  Serial.print("CONNECTED WITH: ");
+  Serial.print("CONNECTED WIFI: ");
   Serial.println(WIFI_SSID);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -133,31 +133,26 @@ void setupWiFi()
     Serial.print(".");
   }
   Serial.println();
-  Serial.println("CONNECTED SUCCESSFULLY");
-  Serial.print("YOUR ID ADDRESS: ");
+  Serial.println("CONNECTION SUCCESSFULL");
+  Serial.print("ID ADDRESS: ");
   myIpAddress = WiFi.localIP();
   Serial.println(myIpAddress);
   if (WiFi.status() == WL_CONNECTED) 
   {
-    if (MDNS.begin("health-corner")) {  
-      Serial.println("MDNS STARTED");
-    }
+    if (MDNS.begin("health-corner")){}
   }
 }
 
 void setupWebServer()
 {
-  Serial.println("SETUP");
   webServer.on("/", handleRoot);
-  Serial.println("STARTING...");
   webServer.begin();
   MDNS.addService("http", "tcp", 80);
-  Serial.println("RUNNING");
 }
 
 void handleRoot()
 {
-  Serial.println("REQUEST SUCCESSFUL");
+  Serial.println("REQUEST SUCCESSFULL");
   String response = "";
   response += "[";
   response += "{";
@@ -191,27 +186,25 @@ void handleRoot()
 
 void setupSensors()
 {
-  Serial.print("Initializing Pulse Oximeter..");
   if (!pox.begin())
   {
-    Serial.println("Pulse Oximeter - SETUP FAILED");
+    Serial.println("MAX30100 - SETUP FAILED");
     for (;;);
   }
   else
   {
-    Serial.println("Pulse Oximeter - SETUP SUCCESS");
+    Serial.println("MAX30100 - SETUP SUCCESS");
     digitalWrite(1, HIGH);
   }
 
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
-  Serial.println("Initializing MLX Infrared Thermometer..");
   if (!mlx.begin())
   {
-    Serial.println("MLX Infrared Thermometer - SETUP FAILED");
+    Serial.println("MLX90614 - SETUP FAILED");
     for (;;);
   }
   else
   {
-    Serial.println("MLX Infrared Thermometer - SETUP SUCCESS");
+    Serial.println("MLX90614 - SETUP SUCCESS");
   }
 }
