@@ -9,7 +9,7 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
-#define WIFI_SSID "HASAN"
+#define WIFI_SSID "Hasan"
 #define WIFI_PASS "76278704H"
 #define WEB_SERVER_PORT 80
 
