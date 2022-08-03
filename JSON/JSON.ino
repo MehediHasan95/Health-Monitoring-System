@@ -21,6 +21,8 @@ Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 PulseOximeter pox;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+const int buzzer = D4;
+
 double bpm, avgBpm;
 double spo2, avgSpo2;
 double bodyTempC, avgBodyTempC;
@@ -35,7 +37,7 @@ void setup()
     Serial.println(F("OLED Display Connection failed"));
     for (;;);
   }
-
+  pinMode(buzzer, OUTPUT);
   setupWiFi();
   setupWebServer();
   Wire.begin();
@@ -60,10 +62,23 @@ void loop()
     avgBodyTempC = sensorValue(bodyTempC);
     avgBodyTempF = sensorValue(bodyTempF);
 
+    buzzerSensor();
     displayData();
     tsLastReport = millis();
   }
   webServer.handleClient();
+}
+
+void buzzerSensor() {
+  if ((bpm > 185) or (spo2 > 98) or (bodyTempC > 40)) {
+    tone(buzzer, 1000);
+    delay(500);
+    noTone(buzzer);
+    delay(500);
+    pox.begin();
+  } else {
+    noTone(buzzer);
+  }
 }
 
 // Calculate average value
@@ -137,9 +152,9 @@ void setupWiFi()
   Serial.print("ID ADDRESS: ");
   myIpAddress = WiFi.localIP();
   Serial.println(myIpAddress);
-  if (WiFi.status() == WL_CONNECTED) 
+  if (WiFi.status() == WL_CONNECTED)
   {
-    if (MDNS.begin("health-corner")){}
+    if (MDNS.begin("health-corner")) {}
   }
 }
 
