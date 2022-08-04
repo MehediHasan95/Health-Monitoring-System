@@ -70,7 +70,7 @@ void loop()
 }
 
 void buzzerSensor() {
-  if ((bpm > 185) or (spo2 > 98) or (bodyTempC > 40)) {
+  if ((bpm > 185) or (spo2 > 100) or (bodyTempC > 50)) {
     tone(buzzer, 1000);
     delay(500);
     noTone(buzzer);
