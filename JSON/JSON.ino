@@ -20,9 +20,7 @@ uint32_t tsLastReport = 0;
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 PulseOximeter pox;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
 const int buzzer = D4;
-
 double bpm, avgBpm;
 double spo2, avgSpo2;
 double bodyTempC, avgBodyTempC;
@@ -56,12 +54,12 @@ void loop()
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-
+    
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
     avgBodyTempC = sensorValue(bodyTempC);
     avgBodyTempF = sensorValue(bodyTempF);
-
+    
     buzzerSensor();
     displayData();
     tsLastReport = millis();
@@ -112,25 +110,34 @@ void displayData()
   display.setCursor(30, 0);
   display.print(myIpAddress);
 
-  display.setCursor(0, 10);
-  display.println("BPM: ");
-  display.setCursor(40, 10);
+  display.setCursor(0, 12);
+  display.println("Heart-rate");
+  display.setCursor(70, 12);
   display.print(bpm);
+  display.setCursor(110, 12);
+  display.println("BPM");
 
-  display.setCursor(0, 20);
-  display.println("SpO2:");
-  display.setCursor(40, 20);
+  display.setCursor(0, 26);
+  display.println("Oxygen-lvl");
+  display.setCursor(70, 26);
   display.print(spo2);
+  display.setCursor(110, 26);
+  display.println("%");
 
-  display.setCursor(0, 30);
-  display.println("TempC:");
-  display.setCursor(40, 30);
+  display.setCursor(0, 38);
+  display.println("Celsius");
+  display.setCursor(70, 38);
   display.print(bodyTempC);
+  display.setCursor(110, 38);
+  display.println("*C");
 
-  display.setCursor(0, 40);
-  display.println("TempF:");
-  display.setCursor(40, 40);
+  display.setCursor(0, 50);
+  display.println("Fahrenheit");
+  display.setCursor(70, 50);
   display.print(bodyTempF);
+  display.setCursor(110, 50);
+  display.println("*F");
+  
   display.display();
 }
 
