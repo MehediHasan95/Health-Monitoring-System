@@ -54,12 +54,12 @@ void loop()
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-    
+
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
     avgBodyTempC = sensorValue(bodyTempC);
     avgBodyTempF = sensorValue(bodyTempF);
-    
+
     buzzerSensor();
     displayData();
     tsLastReport = millis();
@@ -104,40 +104,15 @@ void displayData()
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-
-  display.setCursor(0, 0);
-  display.println("IP:");
   display.setCursor(30, 0);
-  display.print(myIpAddress);
+  display.print(myIpAddress );
 
-  display.setCursor(0, 12);
-  display.println("Heart-rate");
-  display.setCursor(70, 12);
-  display.print(bpm);
-  display.setCursor(110, 12);
-  display.println("BPM");
+  display.setCursor(15, 24);
+  display.println(bpm + String("BPM") + String(" | ") + spo2 + String("%"));
 
-  display.setCursor(0, 26);
-  display.println("Oxygen-lvl");
-  display.setCursor(70, 26);
-  display.print(spo2);
-  display.setCursor(110, 26);
-  display.println("%");
+  display.setCursor(15, 36);
+  display.println(bodyTempC + String((char)247) + String("C") + String(" | ") + bodyTempF + String((char)247) + String("F"));
 
-  display.setCursor(0, 38);
-  display.println("Celsius");
-  display.setCursor(70, 38);
-  display.print(bodyTempC);
-  display.setCursor(110, 38);
-  display.println("*C");
-
-  display.setCursor(0, 50);
-  display.println("Fahrenheit");
-  display.setCursor(70, 50);
-  display.print(bodyTempF);
-  display.setCursor(110, 50);
-  display.println("*F");
-  
   display.display();
 }
 
@@ -210,6 +185,7 @@ void setupSensors()
 {
   if (!pox.begin())
   {
+
     Serial.println("MAX30100 - SETUP FAILED");
     for (;;);
   }
