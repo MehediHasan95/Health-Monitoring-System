@@ -6,6 +6,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ESP8266mDNS.h>
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
@@ -25,11 +26,12 @@ double bpm, avgBpm;
 double spo2, avgSpo2;
 double bodyTempC, avgBodyTempC;
 double bodyTempF, avgBodyTempF;
+double roomTempC;
 IPAddress myIpAddress;
 
 void setup()
 {
-  Serial.begin(9600);  
+  Serial.begin(9600);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   {
     Serial.println(F("OLED Display Connection failed"));
@@ -54,6 +56,7 @@ void loop()
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
+    roomTempC = mlx.readAmbientTempC();
 
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
@@ -89,7 +92,6 @@ double sensorValue(double value)
   {
     arr[i] = value;
   }
-
   for (int i = 0; i <= 25; i++)
   {
     sum = sum + arr[i];
@@ -105,13 +107,16 @@ void displayData()
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(30, 0);
-  display.print(myIpAddress );
+  display.print(myIpAddress);
 
   display.setCursor(15, 24);
   display.println(bpm + String("BPM") + String(" | ") + spo2 + String("%"));
 
   display.setCursor(15, 36);
   display.println(bodyTempC + String((char)247) + String("C") + String(" | ") + bodyTempF + String((char)247) + String("F"));
+
+  display.setCursor(15, 48);
+  display.println(String("Room: ") + roomTempC + String((char)247) + String("C"));
 
   display.display();
 }
@@ -194,7 +199,6 @@ void setupSensors()
     Serial.println("MAX30100 - SETUP SUCCESS");
     digitalWrite(1, HIGH);
   }
-
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
   if (!mlx.begin())
   {
