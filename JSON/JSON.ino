@@ -6,7 +6,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ESP8266mDNS.h>
-
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
@@ -26,7 +25,6 @@ double bpm, avgBpm;
 double spo2, avgSpo2;
 double bodyTempC, avgBodyTempC;
 double bodyTempF, avgBodyTempF;
-double roomTempC;
 IPAddress myIpAddress;
 
 void setup()
@@ -56,7 +54,6 @@ void loop()
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-    roomTempC = mlx.readAmbientTempC();
 
     avgBpm = sensorValue(bpm);
     avgSpo2 = sensorValue(spo2);
@@ -105,19 +102,18 @@ void displayData()
 {
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(WHITE);
+  display.setTextColor(BLACK, WHITE);
   display.setCursor(30, 0);
   display.print(myIpAddress);
 
-  display.setCursor(15, 24);
-  display.println(bpm + String("BPM") + String(" | ") + spo2 + String("%"));
-
-  display.setCursor(15, 36);
-  display.println(bodyTempC + String((char)247) + String("C") + String(" | ") + bodyTempF + String((char)247) + String("F"));
-
-  display.setCursor(15, 48);
-  display.println(String("Room: ") + roomTempC + String((char)247) + String("C"));
-
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  display.println(String("HR:") + bpm + String("b"));
+  display.setCursor(0, 30);
+  display.println(String("OL:") + spo2 + String("%"));
+  display.setCursor(0, 50);
+  display.println(String("BT:") + bodyTempC + String((char)247) + String("C"));
   display.display();
 }
 
