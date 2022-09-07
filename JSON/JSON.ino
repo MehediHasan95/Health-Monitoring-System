@@ -102,18 +102,18 @@ void displayData()
 {
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(BLACK, WHITE);
-  display.setCursor(30, 0);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
   display.print(myIpAddress);
-
+ 
   display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(0, 10);
-  display.println(String("HR:") + bpm + String("b"));
+  display.println(bpm + String(" BPM"));
   display.setCursor(0, 30);
-  display.println(String("OL:") + spo2 + String("%"));
+  display.println(spo2 + String(" %"));
   display.setCursor(0, 50);
-  display.println(String("BT:") + bodyTempC + String((char)247) + String("C"));
+  display.println(bodyTempC + String((char)247) + String("C"));
   display.display();
 }
 
@@ -186,14 +186,13 @@ void setupSensors()
 {
   if (!pox.begin())
   {
-
     Serial.println("MAX30100 - SETUP FAILED");
     for (;;);
-  }
+  } 
   else
   {
     Serial.println("MAX30100 - SETUP SUCCESS");
-    digitalWrite(1, HIGH);
+//    digitalWrite(1, HIGH); 
   }
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
   if (!mlx.begin())
