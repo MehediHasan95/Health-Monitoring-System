@@ -1,11 +1,12 @@
-#include <Wire.h>
-#include <Adafruit_MLX90614.h>
-#include <MAX30100_PulseOximeter.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <ESP8266mDNS.h>
+#include <Wire.h> // Communicate with I2C/TWI devices
+#include <Adafruit_MLX90614.h> // Temperature sensor library
+#include <MAX30100_PulseOximeter.h> // Oximeter library
+#include <ESP8266WiFi.h> // Connect  with wifi
+#include <ESP8266WebServer.h> 
+#include <Adafruit_GFX.h> 
+#include <Adafruit_SSD1306.h> 
+#include <ESP8266mDNS.h> 
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
@@ -19,7 +20,7 @@ uint8_t mlx90614_address = 0x5A;
 uint32_t tsLastReport = 0;
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 PulseOximeter pox;
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //  As the OLED display we are using doesn’t have a RESET pin, we will send -1 to the constructor so that none of the Arduino pins is used as a reset for the display.
 const int buzzer = D4;
 double bpm, avgBpm;
 double spo2, avgSpo2;
@@ -30,7 +31,7 @@ IPAddress myIpAddress;
 void setup()
 {
   Serial.begin(9600);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) // SSD1306_SWITCHCAPVCC turns the internal charge pump circuitry ON
   {
     Serial.println(F("OLED Display Connection failed"));
     for (;;);
@@ -154,29 +155,38 @@ void handleRoot()
   String response = "";
   response += "[";
   response += "{";
+  
   response += "\"bodyTempC\": ";
   response += bodyTempC;
   response += ",";
+  
   response += "\"bodyTempF\": ";
   response += bodyTempF;
   response += ",";
+  
   response += "\"bpm\": ";
   response += bpm;
   response += ",";
+  
   response += "\"spo2\": ";
   response += spo2;
   response += ",";
+  
   response += "\"avgBpm\": ";
   response += avgBpm;
   response += ",";
+  
   response += "\"avgSpo2\": ";
   response += avgSpo2;
   response += ",";
+  
   response += "\"avgBodyTempC\": ";
   response += avgBodyTempC;
   response += ",";
+  
   response += "\"avgBodyTempF\": ";
   response += avgBodyTempF;
+  
   response += "}";
   response += "]";
   webServer.send(200, "application/json", response);
@@ -192,7 +202,7 @@ void setupSensors()
   else
   {
     Serial.println("MAX30100 - SETUP SUCCESS");
-//    digitalWrite(1, HIGH); 
+    digitalWrite(1, HIGH); 
   }
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
   if (!mlx.begin())
