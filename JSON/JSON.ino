@@ -5,9 +5,9 @@
 #include <ESP8266WebServer.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-//#include <ESP8266mDNS.h>
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define REPORTING_PERIOD_MS 1000
 #define WIFI_SSID "Hasan"
 #define WIFI_PASS "76278704H"
@@ -28,13 +28,8 @@ double bodyTempF, avgBodyTempF;
 IPAddress myIpAddress;
 
 void setup() {
-  Serial.begin(9600);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))  // SSD1306_SWITCHCAPVCC turns the internal charge pump circuitry ON
-  {
-    Serial.println(F("OLED Display Connection failed"));
-    for (;;)
-      ;
-  }
+  Serial.begin(9600); // The begin() function initializes I2C interface. 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // SSD1306_SWITCHCAPVCC turns the internal charge pump circuitry ON
   pinMode(buzzer, OUTPUT);
   setupWiFi();
   setupWebServer();
@@ -65,16 +60,9 @@ void loop() {
 }
 
 void buzzerSensor() {
-
-  if ((bpm < 60 && bpm > 40) || (spo2 < 90 && spo2 > 80) || (bodyTempF < 97 && bodyTempF > 95)) {
+  if (bpm > 180 || spo2 > 100 || bodyTempF > 115) {
     tone(buzzer, 1000);  // It play 1000KHz tone for 500milisecond then stops the tone for 500milisecond.
     delay(500);          // 500 milisecond
-    noTone(buzzer);
-    delay(500);
-    pox.begin();
-  } else if (bpm > 180 || spo2 > 100 || bodyTempF > 98.6) {
-    tone(buzzer, 1000);
-    delay(500);
     noTone(buzzer);
     delay(500);
     pox.begin();
@@ -86,10 +74,10 @@ void buzzerSensor() {
 // Calculate average value
 double sensorValue(double value) {
   double arr[25];
-  double sum;
+  double sum = 500;
   double avgrage;
   for (int i = 0; i <= 25; i++) {
-    arr[i] = value;
+    arr[i] = value; // [10, 15, 20 , 25, ......., 89]
   }
   for (int i = 0; i <= 25; i++) {
     sum = sum + arr[i];
@@ -98,7 +86,7 @@ double sensorValue(double value) {
   return avgrage;
 }
 
-// Display sensor data
+// Display sensor data 
 void displayData() {
   display.clearDisplay();
   display.setTextSize(1);
@@ -122,7 +110,6 @@ void setupWiFi() {
   Serial.println("WIFI SETUP");
   Serial.print("CONNECTED WIFI: ");
   Serial.println(WIFI_SSID);
-
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(200);
