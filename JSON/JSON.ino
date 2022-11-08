@@ -9,7 +9,7 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define REPORTING_PERIOD_MS 1000
-#define WIFI_SSID "Hasan"
+#define WIFI_SSID "HASAN"
 #define WIFI_PASS "76278704H"
 #define WEB_SERVER_PORT 80
 
@@ -20,7 +20,6 @@ uint32_t tsLastReport = 0;
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 PulseOximeter pox;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);  //  As the OLED display we are using doesn’t have a RESET pin, we will send -1 to the constructor so that none of the Arduino pins is used as a reset for the display.
-const int buzzer = D4;
 double bpm, avgBpm;
 double spo2, avgSpo2;
 double bodyTempC, avgBodyTempC;
@@ -28,9 +27,7 @@ double bodyTempF, avgBodyTempF;
 IPAddress myIpAddress;
 
 void setup() {
-  Serial.begin(9600); // The begin() function initializes I2C interface. 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // SSD1306_SWITCHCAPVCC turns the internal charge pump circuitry ON
-  pinMode(buzzer, OUTPUT);
+  Serial.begin(115200); // The begin() function initializes I2C interface.
   setupWiFi();
   setupWebServer();
   Wire.begin();
@@ -52,23 +49,11 @@ void loop() {
     avgBodyTempC = sensorValue(bodyTempC);
     avgBodyTempF = sensorValue(bodyTempF);
 
-    buzzerSensor();
+
     displayData();
     tsLastReport = millis();
   }
   webServer.handleClient();  // To handle the actual incoming HTTP requests, we need to call the handleClient() method on the server object
-}
-
-void buzzerSensor() {
-  if (bpm > 180 || spo2 > 100 || bodyTempF > 115) {
-    tone(buzzer, 1000);  // It play 1000KHz tone for 500milisecond then stops the tone for 500milisecond.
-    delay(500);          // 500 milisecond
-    noTone(buzzer);
-    delay(500);
-    pox.begin();
-  } else {
-    noTone(buzzer);
-  }
 }
 
 // Calculate average value
@@ -86,7 +71,7 @@ double sensorValue(double value) {
   return avgrage;
 }
 
-// Display sensor data 
+// Display sensor data
 void displayData() {
   display.clearDisplay();
   display.setTextSize(1);
@@ -97,11 +82,24 @@ void displayData() {
   display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(0, 10);
-  display.println(bpm + String(" BPM"));
+  display.println(bpm);
+
+  display.setCursor(80, 10);
+  display.println("BPM");
+
+
   display.setCursor(0, 30);
-  display.println(spo2 + String(" %"));
+  display.println(spo2);
+
+  display.setCursor(80, 30);
+  display.println("%");
+
   display.setCursor(0, 50);
-  display.println(bodyTempC + String((char)247) + String("C"));
+  display.println(bodyTempF);
+
+  display.setCursor(80, 50);
+  display.println("F");
+
   display.display();
 }
 
@@ -172,18 +170,24 @@ void handleRoot() {
 void setupSensors() {
   if (!pox.begin()) {
     Serial.println("MAX30100 - SETUP FAILED");
-    for (;;)
-      ;
+    for (;;);
   } else {
     Serial.println("MAX30100 - SETUP SUCCESS");
     digitalWrite(1, HIGH);
   }
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
+
   if (!mlx.begin()) {
     Serial.println("MLX90614 - SETUP FAILED");
-    for (;;)
-      ;
+    for (;;);
   } else {
     Serial.println("MLX90614 - SETUP SUCCESS");
+  }
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 SETUP FAILED"));
+    for (;;);
+  } else {
+    Serial.println("SSD1306 - SETUP SUCCESS");
   }
 }
