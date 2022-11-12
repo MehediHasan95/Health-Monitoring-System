@@ -1,33 +1,33 @@
-#include <Wire.h>                    // This library provides ESP8622 specific WiFi methods we are calling to connect to network.
-#include <Adafruit_MLX90614.h>       // Temperature sensor library
-#include <MAX30100_PulseOximeter.h>  // Oximeter library
-#include <ESP8266WiFi.h>             // Connect  with wifi
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+#include <MAX30100_PulseOximeter.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 #define REPORTING_PERIOD_MS 1000
 #define WIFI_SSID "HASAN"
 #define WIFI_PASS "76278704H"
 #define WEB_SERVER_PORT 80
 
-ESP8266WebServer webServer(WEB_SERVER_PORT);  // declare an object of WebServer library
+ESP8266WebServer webServer(WEB_SERVER_PORT);
 uint8_t max30100_address = 0x57;
 uint8_t mlx90614_address = 0x5A;
 uint32_t tsLastReport = 0;
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 PulseOximeter pox;
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);  //  As the OLED display we are using doesn’t have a RESET pin, we will send -1 to the constructor so that none of the Arduino pins is used as a reset for the display.
-double bpm, avgBpm;
-double spo2, avgSpo2;
-double bodyTempC, avgBodyTempC;
-double bodyTempF, avgBodyTempF;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+double bpm;
+double spo2;
+double bodyTempC;
+double bodyTempF;
 IPAddress myIpAddress;
 
 void setup() {
-  Serial.begin(115200); // The begin() function initializes I2C interface.
+  Serial.begin(9600);
   setupWiFi();
   setupWebServer();
   Wire.begin();
@@ -44,31 +44,10 @@ void loop() {
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
 
-    avgBpm = sensorValue(bpm);
-    avgSpo2 = sensorValue(spo2);
-    avgBodyTempC = sensorValue(bodyTempC);
-    avgBodyTempF = sensorValue(bodyTempF);
-
-
     displayData();
     tsLastReport = millis();
   }
-  webServer.handleClient();  // To handle the actual incoming HTTP requests, we need to call the handleClient() method on the server object
-}
-
-// Calculate average value
-double sensorValue(double value) {
-  double arr[25];
-  double sum = 500;
-  double avgrage;
-  for (int i = 0; i <= 25; i++) {
-    arr[i] = value; // [10, 15, 20 , 25, ......., 89]
-  }
-  for (int i = 0; i <= 25; i++) {
-    sum = sum + arr[i];
-  }
-  avgrage = sum / 25;
-  return avgrage;
+  webServer.handleClient();
 }
 
 // Display sensor data
@@ -87,7 +66,6 @@ void displayData() {
   display.setCursor(80, 10);
   display.println("BPM");
 
-
   display.setCursor(0, 30);
   display.println(spo2);
 
@@ -95,10 +73,10 @@ void displayData() {
   display.println("%");
 
   display.setCursor(0, 50);
-  display.println(bodyTempF);
+  display.println(bodyTempC);
 
   display.setCursor(80, 50);
-  display.println("F");
+  display.println("C");
 
   display.display();
 }
@@ -145,22 +123,6 @@ void handleRoot() {
 
   response += "\"spo2\": ";
   response += spo2;
-  response += ",";
-
-  response += "\"avgBpm\": ";
-  response += avgBpm;
-  response += ",";
-
-  response += "\"avgSpo2\": ";
-  response += avgSpo2;
-  response += ",";
-
-  response += "\"avgBodyTempC\": ";
-  response += avgBodyTempC;
-  response += ",";
-
-  response += "\"avgBodyTempF\": ";
-  response += avgBodyTempF;
 
   response += "}";
   response += "]";
