@@ -60,6 +60,7 @@ void displayData() {
 
   display.setTextSize(2);
   display.setTextColor(WHITE);
+
   display.setCursor(0, 10);
   display.println(bpm);
 
@@ -135,7 +136,6 @@ void setupSensors() {
     for (;;);
   } else {
     Serial.println("MAX30100 - SETUP SUCCESS");
-    digitalWrite(1, HIGH);
   }
   pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
 
@@ -145,11 +145,10 @@ void setupSensors() {
   } else {
     Serial.println("MLX90614 - SETUP SUCCESS");
   }
-
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 SETUP FAILED"));
+    Serial.println(F("OLED - SETUP FAILED"));
     for (;;);
   } else {
-    Serial.println("SSD1306 - SETUP SUCCESS");
+    Serial.println("OLED - SETUP SUCCESS");
   }
 }
