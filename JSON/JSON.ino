@@ -109,7 +109,7 @@ void handleRoot() {
   String response = "";
   response += "[";
   response += "{";
-
+  
   response += "\"bodyTempC\": ";
   response += bodyTempC;
   response += ",";
@@ -127,7 +127,8 @@ void handleRoot() {
 
   response += "}";
   response += "]";
-  webServer.send(200, "application/json", response);
+  
+  webServer.send(200, "text/json", response);
 }
 
 void setupSensors() {
