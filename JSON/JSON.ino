@@ -24,6 +24,8 @@ double bpm;
 double spo2;
 double bodyTempC;
 double bodyTempF;
+double roomTempC;
+double roomTempF;
 IPAddress myIpAddress;
 
 void setup() {
@@ -43,6 +45,8 @@ void loop() {
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
+    roomTempC = mlx.readAmbientTempC();
+    roomTempF = mlx.readAmbientTempF();
     displayData();
     tsLastReport = millis();
   }
@@ -108,13 +112,21 @@ void handleRoot() {
   String response = "";
   response += "[";
   response += "{";
-  
+
   response += "\"bodyTempC\": ";
   response += bodyTempC;
   response += ",";
 
   response += "\"bodyTempF\": ";
   response += bodyTempF;
+  response += ",";
+
+  response += "\"roomTempC\": ";
+  response += roomTempC;
+  response += ",";
+
+  response += "\"roomTempF\": ";
+  response += roomTempF;
   response += ",";
 
   response += "\"bpm\": ";
@@ -126,7 +138,7 @@ void handleRoot() {
 
   response += "}";
   response += "]";
-  
+
   webServer.send(200, "text/json", response);
 }
 
