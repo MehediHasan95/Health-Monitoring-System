@@ -43,7 +43,6 @@ void loop() {
     spo2 = pox.getSpO2();
     bodyTempC = mlx.readObjectTempC();
     bodyTempF = mlx.readObjectTempF();
-
     displayData();
     tsLastReport = millis();
   }
@@ -94,7 +93,7 @@ void setupWiFi() {
   }
   Serial.println();
   Serial.println("CONNECTION SUCCESSFULL");
-  Serial.print("ID ADDRESS: ");
+  Serial.print("IP ADDRESS: ");
   myIpAddress = WiFi.localIP();
   Serial.println(myIpAddress);
 }
